@@ -1,5 +1,3 @@
-'use Strict';
-
 const AWS = require('aws-sdk');
 let s3 = new AWS.S3();
 
@@ -7,27 +5,38 @@ exports.handler = async (event) => {
     
     // console.log(s3);
     // console.log(JSON.stringify(event));
-
+    let bucketName = event.Records[0].s3.bucket.name;
+    let fileName = event.Records[0].s3.object.key;
+    let fileSize = event.Records[0].s3.object.size;
     
-    let imageInfo = event.Records[0].s3.object;
-    // let name = event.Records[0].s3.bucket.name;
-    let imageArray = [];
-    let temp = [];
+    console.log(bucketName, fileName, fileSize);
     
-    temp.push(imageInfo);
+    const params = {
+        Bucket: bucketName,
+        Key: "images.json"
+    };
     
-    for(imageInfo.key in temp) {
-        imageArray.push(imageInfo);
+    try{
+        const manifest = await s3.getObject(params).promise();
+        console.log('current manifest', manifest);
+        
+    }catch(error){
+        console.log(error);
+        const newManifest = {
+            Bucket: bucketName,
+            Key: 'images.json',
+            Body: JSON.stringify([{name: fileName, size: fileSize, type: 'image'}]),
+            ContentType: 'application/json',
+        };
+        const manifest = await s3.putObject(newManifest).promise();
     }
     
-    // imageArray.push(name, size);
+    // console.log('JSON file fetched fromthe bucket', manifest);
+    
     
     const response = {
         statusCode: 200,
-        // body: JSON.stringify('Hello from Lambda!'),
-        // name: name,
-        // size:size 
-        body: imageArray,
+        body: JSON.stringify('Hello from Lambda!'),
     };
     return response;
 };
