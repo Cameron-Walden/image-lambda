@@ -14,4 +14,4 @@ Use the lambda console to create a function. Once you invoke it, you can view lo
 
 ## Issues
 
-I ran into issues when trying to get images back, but I hard coded them into the test and my code worked fine.
+I ran into issues with my access getting denied bc of permissions
