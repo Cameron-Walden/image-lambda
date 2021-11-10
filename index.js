@@ -18,7 +18,18 @@ exports.handler = async (event) => {
     
     try{
         const manifest = await s3.getObject(params).promise();
-        console.log('current manifest', manifest);
+        
+        let manifestData = JSON.parse(manifest.Body.toString());
+        console.log('current manifestData', manifestData[0]);
+        
+        manifestData.push({
+            name: fileName,
+            size: fileSize,
+            type: 'image'
+        });
+        
+        const manifestBody = JSON.stringify(manifestData);
+        const newManifest = await s3.putObject({...params, Body: manifestData, ContentType: 'application/json'})
         
     }catch(error){
         console.log(error);
@@ -29,9 +40,8 @@ exports.handler = async (event) => {
             ContentType: 'application/json',
         };
         const manifest = await s3.putObject(newManifest).promise();
+        console.log('JSON file fetched fromthe bucket', manifest);
     }
-    
-    // console.log('JSON file fetched fromthe bucket', manifest);
     
     
     const response = {
